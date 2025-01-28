@@ -1,12 +1,6 @@
 name: Build Nginx Portable
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -21,7 +15,8 @@ jobs:
         run: |
           # 在 Ubuntu 上安装依赖
           sudo apt-get update
-          sudo apt-get install perl git curl unzip build-essential libpcre3-dev libssl-dev -y
+          # sudo apt-get install perl git curl unzip build-essential libpcre3-dev libssl-dev -y
+          sudo apt-get install gcc g++ make libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev wget curl unzip -y
 
       - name: Get latest Nginx version
         id: get_version
