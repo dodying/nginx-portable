@@ -1,0 +1,46 @@
+name: Build Nginx Portable
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: centos-8
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up dependencies
+        run: |
+          sudo yum install -y gcc gcc-c++ pcre pcre-devel zlib zlib-devel openssl openssl-devel wget unzip curl
+
+      - name: Get latest Nginx version
+        id: get_version
+        run: |
+          # 使用 curl 获取 nginx 官方页面
+          web=$(curl -s https://nginx.org/en/download.html)
+          # 提取所有版本号，并选取最新的版本
+          VERSION=$(echo "$web" | grep -oP 'nginx-\d+\.\d+\.\d+\.tar.gz' | sort -V | tail -n 1 | sed 's/nginx-\(.*\)\.tar.gz/\1/')
+          echo "Latest Nginx version: $VERSION"
+          echo "::set-output name=version::$VERSION"  # 设置输出变量
+
+      - name: Install Nginx Portable
+        run: |
+          # 切换到 nginx-portable 目录
+          cd ~/nginx-portable
+          
+          # 使用从上一步获取到的最新版本号进行编译
+          bash compile ${{ steps.get_version.outputs.version }}
+
+      - name: Upload Nginx to GitHub Releases
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nginx-portable/build/nginx-${{ steps.get_version.outputs.version }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
