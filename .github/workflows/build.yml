@@ -38,4 +38,5 @@ jobs:
         with:
           files: build/nginx-${{ steps.get_version.outputs.version }}.tar.gz
           tag_name: "v${{ steps.get_version.outputs.version }}"
+          make_latest: "true"
           token: ${{ secrets.ACCESS_TOKEN }}
